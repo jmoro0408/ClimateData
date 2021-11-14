@@ -1,6 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import Input, Output, dcc, html
+from dash import Input, Output, dcc, html, dash_table
 import pandas as pd
 from figures.ghg_figure import (
     ghg_fig,
@@ -14,7 +14,11 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 # --------------------STYLES-----------------
 GRAPH_STYLE = {"background": "#ffffff", "text": "#000000"}
 FONT_STYLE = {"font-family": ["Arial", "Helvetica", "sans-serif"]}
-
+TABLE_STYLE = {
+    "background_color": "#ffffff",
+    "font_color": "#000000",
+    "header_color": "#EDEDED",
+}
 
 SIDEBAR_STYLE = {
     "position": "fixed",
@@ -72,7 +76,7 @@ sidebar = html.Div(
     style=SIDEBAR_STYLE,
 )
 # -----------------------FIRST ROW---------------------------------
-
+# ---------FIGURE-----
 ghg_figure_div = html.Div(
     style={"backgroundColor": GRAPH_STYLE["background"]},
     children=[
@@ -95,9 +99,22 @@ ghg_figure_div = html.Div(
         dcc.Graph(id="ghg-line-plot", figure=ghg_fig),
     ],
 )
+# ---------TABLE-----
 
-ghg_table = dbc.Table.from_dataframe(
-    ghg_df_selection_df, striped=True, bordered=True, hover=True
+ghg_table = dash_table.DataTable(
+    data=ghg_df_selection_df.to_dict("records"),
+    columns=[{"id": c, "name": c} for c in ghg_df_selection_df.columns],
+    style_cell={"font_family": FONT_STYLE["font-family"], "textAlign": "left"},
+    style_cell_conditional=[{"if": {"column_id": "Value"}, "textAlign": "right"}],
+    style_table={"height": "500px", "overflowY": "auto"},
+    style_header={
+        "backgroundColor": TABLE_STYLE["header_color"],
+        "color": TABLE_STYLE["font_color"],
+    },
+    style_data={
+        "backgroundColor": TABLE_STYLE["background_color"],
+        "color": TABLE_STYLE["font_color"],
+    },
 )
 
 content_first_row = html.Div(
@@ -105,7 +122,7 @@ content_first_row = html.Div(
         dbc.Row(
             [
                 dbc.Col(dcc.Graph(id="ghg-line-plot", figure=ghg_fig)),
-                dbc.Col(ghg_table),
+                dbc.Col(ghg_table, width=3),
             ]
         ),
     ]
