@@ -2,15 +2,19 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html
 import pandas as pd
-from figures.ghg_figure import ghg_fig, ghg_countries, ghg_gas_name_dict
+from figures.ghg_figure import (
+    ghg_fig,
+    ghg_countries,
+    ghg_gas_name_dict,
+    ghg_df_selection_df,
+)
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-colors = {"background": "#ffffff", "text": "#000000"}
-fonts = {"font-family": ["Arial", "Helvetica", "sans-serif"]}
+# --------------------STYLES-----------------
+GRAPH_STYLE = {"background": "#ffffff", "text": "#000000"}
+FONT_STYLE = {"font-family": ["Arial", "Helvetica", "sans-serif"]}
 
-# assume you have a "long-form" data frame
-# see https://plotly.com/python/px-arguments/ for more options
 
 SIDEBAR_STYLE = {
     "position": "fixed",
@@ -33,6 +37,8 @@ CONTENT_STYLE = {
 TEXT_STYLE = {"textAlign": "center", "color": "#191970"}
 
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
+
+# --------------SIDEBAR-------------------------
 
 controls = dbc.Card(
     [
@@ -65,35 +71,55 @@ sidebar = html.Div(
     [html.H2("Parameters", style=TEXT_STYLE), html.Hr(), controls],
     style=SIDEBAR_STYLE,
 )
+# -----------------------FIRST ROW---------------------------------
 
 ghg_figure_div = html.Div(
-    style={"backgroundColor": colors["background"]},
+    style={"backgroundColor": GRAPH_STYLE["background"]},
     children=[
         html.H1(
             children="Paris Agreement Update",
             style={
                 "textAlign": "left",
-                "color": colors["text"],
-                "font-family": fonts["font-family"],
+                "color": GRAPH_STYLE["text"],
+                "font-family": FONT_STYLE["font-family"],
             },
         ),
         html.Div(
             children="How far are we from the target?",
             style={
                 "textAlign": "left",
-                "color": colors["text"],
-                "font-family": fonts["font-family"],
+                "color": GRAPH_STYLE["text"],
+                "font-family": FONT_STYLE["font-family"],
             },
         ),
         dcc.Graph(id="ghg-line-plot", figure=ghg_fig),
     ],
 )
 
-content_ghg_fig = dbc.Row([dcc.Graph(id="ghg-line-plot", figure=ghg_fig)])
+ghg_table = dbc.Table.from_dataframe(
+    ghg_df_selection_df, striped=True, bordered=True, hover=True
+)
 
+content_first_row = html.Div(
+    [
+        dbc.Row(
+            [
+                dbc.Col(dcc.Graph(id="ghg-line-plot", figure=ghg_fig)),
+                dbc.Col(ghg_table),
+            ]
+        ),
+    ]
+)
+
+
+# -------------------APP LAYOUT---------------------------
 
 content = html.Div(
-    [html.H2("Climate Change Dashboard", style=TEXT_STYLE), html.Hr(), content_ghg_fig],
+    [
+        html.H2("Climate Change Dashboard", style=TEXT_STYLE),
+        html.Hr(),
+        content_first_row,
+    ],
     id="page-content",
     style=CONTENT_STYLE,
 )
