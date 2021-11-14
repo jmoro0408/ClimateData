@@ -33,10 +33,15 @@ ghg_gas_name_dict = {
     "Nitrous Oxide": N20_df,
 }
 
+
 ghg_fig_country = "Germany"
 ghg_df_selection_name = "Perfluorocarbon"
 ghg_df_selection_df = ghg_gas_name_dict.get(ghg_df_selection_name)
+# table_df = ghg_df_selection_df[
+#     ghg_df_selection_df["Country or Area"] == ghg_fig_country
+# ]
 
+ghg_countries = ghg_df_selection_df["Country or Area"].unique()
 ghg_fig = go.Figure(
     data=go.Scatter(
         x=ghg_df_selection_df[
@@ -49,11 +54,10 @@ ghg_fig = go.Figure(
 )
 
 ghg_fig.update_layout(
-    plot_bgcolor=colors["background"],
-    paper_bgcolor=colors["background"],
     font_color=colors["text"],
     title_text=f"{ghg_df_selection_name} Emissions - {ghg_fig_country}",
     xaxis_title="Year",
-    yaxis_title="Temperature (degrees F)",
+    yaxis_title="Emissions (Tonnes)",
     font_size=18,
+    template="ggplot2",
 )
