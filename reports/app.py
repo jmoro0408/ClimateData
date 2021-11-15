@@ -1,6 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import Input, Output, dcc, html, dash_table
+from dash import Input, Output, dcc, html, dash_table, State
 import pandas as pd
 from figures.ghg_figure import (
     ghg_fig,
@@ -46,23 +46,22 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 controls = dbc.Card(
     [
-        html.P("Greenhouse Gases", style={"textAlign": "center"}),
+        html.P("Greenhouse Gases", style={"textAlign": "center"}),  # Gases
         dcc.Dropdown(
             id="ghg_dropdown",
             options=[
-                {"label": name, "value": str(df)}
-                for name, df in ghg_gas_name_dict.items()
+                {"label": name, "value": name} for name in ghg_gas_name_dict.keys()
             ],
-            value=["Carbon Dioxide"],  # default value
+            value="Methane",
             multi=False,
-            clearable=False,
+            clearable=True,
             placeholder="Select a greenhouse gas",
         ),
-        html.P("Country", style={"textAlign": "center"}),
+        html.P("Country", style={"textAlign": "center"}),  # Countries
         dcc.Dropdown(
             id="ghg_country_dropdown",
             options=[{"label": country, "value": country} for country in ghg_countries],
-            value=["United Kingdom"],  # default value
+            value="United Kingdom",  # default value
             multi=True,
             clearable=False,
             placeholder="Select a country",
@@ -102,7 +101,7 @@ ghg_figure_div = html.Div(
 # ---------TABLE-----
 
 ghg_table = dash_table.DataTable(
-    data=ghg_df_selection_df.to_dict("records"),
+    id="ghg_table",
     columns=[{"id": c, "name": c} for c in ghg_df_selection_df.columns],
     style_cell={"font_family": FONT_STYLE["font-family"], "textAlign": "left"},
     style_cell_conditional=[{"if": {"column_id": "Value"}, "textAlign": "right"}],
@@ -127,6 +126,24 @@ content_first_row = html.Div(
         ),
     ]
 )
+
+# ------TABLE CALLBACK----------
+
+
+@app.callback(
+    Output(component_id="ghg_table", component_property="data"),
+    Input(component_id="ghg_dropdown", component_property="value"),
+)
+def update_ghg_table(val_chosen):
+    # selects the corresponding dataframe from dropdown ghg choices
+    print("\n\n\n")
+    print(f"user choice: {val_chosen}")
+    print(f"original type: {type(val_chosen)}")
+    if isinstance(val_chosen, list):
+        val_chosen = val_chosen[0]
+        print(f"updated type: {type(val_chosen)}")
+    print(ghg_gas_name_dict.get(val_chosen))
+    return ghg_gas_name_dict.get(val_chosen).to_dict("records")
 
 
 # -------------------APP LAYOUT---------------------------
