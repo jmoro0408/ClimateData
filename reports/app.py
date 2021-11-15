@@ -9,6 +9,8 @@ from figures.ghg_figure import (
     ghg_df_selection_df,
 )
 
+# TODO Country selection doesnt show initial state on ghg table
+
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # --------------------STYLES-----------------
@@ -54,14 +56,14 @@ controls = dbc.Card(
             ],
             value="Methane",
             multi=False,
-            clearable=True,
+            clearable=False,
             placeholder="Select a greenhouse gas",
         ),
         html.P("Country", style={"textAlign": "center"}),  # Countries
         dcc.Dropdown(
             id="ghg_country_dropdown",
             options=[{"label": country, "value": country} for country in ghg_countries],
-            value="United Kingdom",  # default value
+            value=["Australia"],
             multi=True,
             clearable=False,
             placeholder="Select a country",
@@ -132,18 +134,21 @@ content_first_row = html.Div(
 
 @app.callback(
     Output(component_id="ghg_table", component_property="data"),
-    Input(component_id="ghg_dropdown", component_property="value"),
+    [
+        Input(component_id="ghg_dropdown", component_property="value"),
+        Input(component_id="ghg_country_dropdown", component_property="value"),
+    ],
 )
-def update_ghg_table(val_chosen):
+def ghg_table_callback(gas_chosen, country_chosen):
     # selects the corresponding dataframe from dropdown ghg choices
-    print("\n\n\n")
-    print(f"user choice: {val_chosen}")
-    print(f"original type: {type(val_chosen)}")
-    if isinstance(val_chosen, list):
-        val_chosen = val_chosen[0]
-        print(f"updated type: {type(val_chosen)}")
-    print(ghg_gas_name_dict.get(val_chosen))
-    return ghg_gas_name_dict.get(val_chosen).to_dict("records")
+    if not isinstance(country_chosen, list):
+        country_chosen = list(country_chosen)
+    _chosen_gas_df = ghg_gas_name_dict.get(gas_chosen)
+    _chosen_gas_country_df = _chosen_gas_df[
+        _chosen_gas_df["Country or Area"].isin(country_chosen)
+    ]
+
+    return _chosen_gas_country_df.to_dict("records")
 
 
 # -------------------APP LAYOUT---------------------------
