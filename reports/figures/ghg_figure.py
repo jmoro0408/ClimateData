@@ -35,12 +35,9 @@ ghg_gas_name_dict = {
 }
 
 
-ghg_fig_country = "Germany"
-ghg_df_selection_name = "Perfluorocarbon"
+ghg_fig_country = "Australia"
+ghg_df_selection_name = "Methane"
 ghg_df_selection_df = ghg_gas_name_dict.get(ghg_df_selection_name)
-# table_df = ghg_df_selection_df[
-#     ghg_df_selection_df["Country or Area"] == ghg_fig_country
-# ]
 
 ghg_countries = ghg_df_selection_df["Country or Area"].unique()
 ghg_fig = go.Figure(

@@ -1,6 +1,7 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html, dash_table, State
+import plotly.graph_objects as go
 import pandas as pd
 from figures.ghg_figure import (
     ghg_fig,
@@ -129,7 +130,38 @@ content_first_row = html.Div(
     ]
 )
 
-# ------TABLE CALLBACK----------
+# ----------GHG FIGURE CALLBACK---------
+
+
+@app.callback(
+    Output(component_id="ghg-line-plot", component_property="figure"),
+    [
+        Input(component_id="ghg_dropdown", component_property="value"),
+        Input(component_id="ghg_country_dropdown", component_property="value"),
+    ],
+)
+def update_ghg_figure(gas_chosen, fig_country_chosen):
+    _chosen_gas_df = ghg_gas_name_dict.get(gas_chosen)
+    if not isinstance(fig_country_chosen, list):
+        fig_country_chosen = list(fig_country_chosen)
+    updated_df = _chosen_gas_df[
+        _chosen_gas_df["Country or Area"].isin(fig_country_chosen)
+    ]
+
+    fig = go.Figure(go.Scatter(x=updated_df["Year"], y=updated_df["Value"]))
+    fig.update_layout(
+        font_color=GRAPH_STYLE["text"],
+        title_text=f"{gas_chosen} Emissions - {fig_country_chosen}",
+        xaxis_title="Year",
+        yaxis_title="Emissions (Tonnes)",
+        font_size=18,
+        template="ggplot2",
+    )
+
+    return fig
+
+
+# ------GHG TABLE CALLBACK----------
 
 
 @app.callback(
