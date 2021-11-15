@@ -11,6 +11,7 @@ from figures.ghg_figure import (
 )
 
 # TODO Country selection doesnt show initial state on ghg table
+# TODO update ghg graph title from list format to string
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -142,13 +143,31 @@ content_first_row = html.Div(
 )
 def update_ghg_figure(gas_chosen, fig_country_chosen):
     _chosen_gas_df = ghg_gas_name_dict.get(gas_chosen)
+    _chosen_gas_df = _chosen_gas_df.sort_values(by="Year")
     if not isinstance(fig_country_chosen, list):
         fig_country_chosen = list(fig_country_chosen)
     updated_df = _chosen_gas_df[
         _chosen_gas_df["Country or Area"].isin(fig_country_chosen)
     ]
 
-    fig = go.Figure(go.Scatter(x=updated_df["Year"], y=updated_df["Value"]))
+    fig = go.Figure(
+        go.Scatter(
+            x=updated_df["Year"],
+            y=updated_df["Value"],
+            mode="lines",
+        )
+    )
+
+    if len(fig_country_chosen) > 1:
+        fig = go.Figure()
+        for country in fig_country_chosen:
+            year = _chosen_gas_df[_chosen_gas_df["Country or Area"] == country]["Year"]
+            value = _chosen_gas_df[_chosen_gas_df["Country or Area"] == country][
+                "Value"
+            ]
+
+            fig.add_trace(go.Scatter(x=year, y=value, name=country, mode="lines"))
+
     fig.update_layout(
         font_color=GRAPH_STYLE["text"],
         title_text=f"{gas_chosen} Emissions - {fig_country_chosen}",
