@@ -170,7 +170,7 @@ def update_ghg_figure(gas_chosen, fig_country_chosen):
 
     fig.update_layout(
         font_color=GRAPH_STYLE["text"],
-        title_text=f"{gas_chosen} Emissions - {fig_country_chosen}",
+        title_text=f"{gas_chosen} Emissions - {*fig_country_chosen,}",
         xaxis_title="Year",
         yaxis_title="Emissions (Tonnes)",
         font_size=18,
