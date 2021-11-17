@@ -12,6 +12,7 @@ from figures.ghg_figure import (
 
 # TODO Country selection doesnt show initial state on ghg table
 # TODO update ghg graph title from list format to string
+# TODO Check units
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
