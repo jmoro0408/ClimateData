@@ -13,6 +13,8 @@ from figures.ghg_figure import (
 # TODO Country selection doesnt show initial state on ghg table
 # TODO update ghg graph title from list format to string
 # TODO Check units
+# TODO update dfs in app.py to combined df
+# TODO add "world" to ghg df
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
