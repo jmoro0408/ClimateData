@@ -7,7 +7,7 @@ from figures.ghg_figure import (
     ghg_fig,
     ghg_countries,
     ghg_gas_name_dict,
-    ghg_df_selection_df,
+    combined_df,
 )
 
 # TODO Country selection doesnt show initial state on ghg table
@@ -68,7 +68,7 @@ controls = dbc.Card(
         dcc.Dropdown(
             id="ghg_country_dropdown",
             options=[{"label": country, "value": country} for country in ghg_countries],
-            value=["Australia"],
+            value=["World"],
             multi=True,
             clearable=False,
             placeholder="Select a country",
@@ -109,7 +109,7 @@ ghg_figure_div = html.Div(
 
 ghg_table = dash_table.DataTable(
     id="ghg_table",
-    columns=[{"id": c, "name": c} for c in ghg_df_selection_df.columns],
+    columns=[{"id": c, "name": c} for c in combined_df.columns],
     style_cell={"font_family": FONT_STYLE["font-family"], "textAlign": "left"},
     style_cell_conditional=[{"if": {"column_id": "Value"}, "textAlign": "right"}],
     style_table={"height": "500px", "overflowY": "auto"},
@@ -145,18 +145,17 @@ content_first_row = html.Div(
     ],
 )
 def update_ghg_figure(gas_chosen, fig_country_chosen):
-    _chosen_gas_df = ghg_gas_name_dict.get(gas_chosen)
+    gas_value = ghg_gas_name_dict.get(gas_chosen)
+    _chosen_gas_df = combined_df[["Country", "Year", gas_value]]
     _chosen_gas_df = _chosen_gas_df.sort_values(by="Year")
     if not isinstance(fig_country_chosen, list):
         fig_country_chosen = list(fig_country_chosen)
-    updated_df = _chosen_gas_df[
-        _chosen_gas_df["Country or Area"].isin(fig_country_chosen)
-    ]
+    updated_df = _chosen_gas_df[_chosen_gas_df["Country"].isin(fig_country_chosen)]
 
     fig = go.Figure(
         go.Scatter(
             x=updated_df["Year"],
-            y=updated_df["Value"],
+            y=updated_df[gas_value],
             mode="lines",
         )
     )
@@ -164,10 +163,8 @@ def update_ghg_figure(gas_chosen, fig_country_chosen):
     if len(fig_country_chosen) > 1:
         fig = go.Figure()
         for country in fig_country_chosen:
-            year = _chosen_gas_df[_chosen_gas_df["Country or Area"] == country]["Year"]
-            value = _chosen_gas_df[_chosen_gas_df["Country or Area"] == country][
-                "Value"
-            ]
+            year = _chosen_gas_df[_chosen_gas_df["Country"] == country]["Year"]
+            value = _chosen_gas_df[_chosen_gas_df["Country"] == country][gas_value]
 
             fig.add_trace(go.Scatter(x=year, y=value, name=country, mode="lines"))
 
@@ -197,9 +194,10 @@ def ghg_table_callback(gas_chosen, country_chosen):
     # selects the corresponding dataframe from dropdown ghg choices
     if not isinstance(country_chosen, list):
         country_chosen = list(country_chosen)
-    _chosen_gas_df = ghg_gas_name_dict.get(gas_chosen)
+    gas_value = ghg_gas_name_dict.get(gas_chosen)
+    _chosen_gas_df = combined_df[["Country", "Year", gas_value]]
     _chosen_gas_country_df = _chosen_gas_df[
-        _chosen_gas_df["Country or Area"].isin(country_chosen)
+        _chosen_gas_df["Country"].isin(country_chosen)
     ]
 
     return _chosen_gas_country_df.to_dict("records")
