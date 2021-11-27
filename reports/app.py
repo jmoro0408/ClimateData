@@ -107,28 +107,28 @@ ghg_figure_div = html.Div(
 )
 # ---------TABLE-----
 
-ghg_table = dash_table.DataTable(
-    id="ghg_table",
-    columns=[{"id": c, "name": c} for c in combined_df.columns],
-    style_cell={"font_family": FONT_STYLE["font-family"], "textAlign": "left"},
-    style_cell_conditional=[{"if": {"column_id": "Value"}, "textAlign": "right"}],
-    style_table={"height": "500px", "overflowY": "auto"},
-    style_header={
-        "backgroundColor": TABLE_STYLE["header_color"],
-        "color": TABLE_STYLE["font_color"],
-    },
-    style_data={
-        "backgroundColor": TABLE_STYLE["background_color"],
-        "color": TABLE_STYLE["font_color"],
-    },
-)
+# ghg_table = dash_table.DataTable(
+#     id="ghg_table",
+#     columns=[{"id": c, "name": c} for c in combined_df.columns],
+#     style_cell={"font_family": FONT_STYLE["font-family"], "textAlign": "left"},
+#     style_cell_conditional=[{"if": {"column_id": "Value"}, "textAlign": "right"}],
+#     style_table={"height": "500px", "overflowY": "auto"},
+#     style_header={
+#         "backgroundColor": TABLE_STYLE["header_color"],
+#         "color": TABLE_STYLE["font_color"],
+#     },
+#     style_data={
+#         "backgroundColor": TABLE_STYLE["background_color"],
+#         "color": TABLE_STYLE["font_color"],
+#     },
+# )
 
 content_first_row = html.Div(
     [
         dbc.Row(
             [
                 dbc.Col(dcc.Graph(id="ghg-line-plot", figure=ghg_fig)),
-                dbc.Col(ghg_table, width=3),
+                # dbc.Col(ghg_table, width=3),
             ]
         ),
     ]
@@ -183,24 +183,24 @@ def update_ghg_figure(gas_chosen, fig_country_chosen):
 # ------GHG TABLE CALLBACK----------
 
 
-@app.callback(
-    Output(component_id="ghg_table", component_property="data"),
-    [
-        Input(component_id="ghg_dropdown", component_property="value"),
-        Input(component_id="ghg_country_dropdown", component_property="value"),
-    ],
-)
-def ghg_table_callback(gas_chosen, country_chosen):
-    # selects the corresponding dataframe from dropdown ghg choices
-    if not isinstance(country_chosen, list):
-        country_chosen = list(country_chosen)
-    gas_value = ghg_gas_name_dict.get(gas_chosen)
-    _chosen_gas_df = combined_df[["Country", "Year", gas_value]]
-    _chosen_gas_country_df = _chosen_gas_df[
-        _chosen_gas_df["Country"].isin(country_chosen)
-    ]
+# @app.callback(
+#     Output(component_id="ghg_table", component_property="data"),
+#     [
+#         Input(component_id="ghg_dropdown", component_property="value"),
+#         Input(component_id="ghg_country_dropdown", component_property="value"),
+#     ],
+# )
+# def ghg_table_callback(gas_chosen, country_chosen):
+#     # selects the corresponding dataframe from dropdown ghg choices
+#     if not isinstance(country_chosen, list):
+#         country_chosen = list(country_chosen)
+#     gas_value = ghg_gas_name_dict.get(gas_chosen)
+#     _chosen_gas_df = combined_df[["Country", "Year", gas_value]]
+#     _chosen_gas_country_df = _chosen_gas_df[
+#         _chosen_gas_df["Country"].isin(country_chosen)
+#     ]
 
-    return _chosen_gas_country_df.to_dict("records")
+#     return _chosen_gas_country_df.to_dict("records")
 
 
 # -------------------APP LAYOUT---------------------------

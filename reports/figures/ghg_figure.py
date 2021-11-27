@@ -15,7 +15,7 @@ ghg_gas_name_dict = {
     "Perfluorocarbon": "PFC Emissions",
     "Sulfur Hexafluoride": "SF6 Emissions",
     "Nitrous Oxide": "N20 Emissions",
-    "Combined Total": "Combined Total",
+    "Combined Total": "Total",
 }
 
 
